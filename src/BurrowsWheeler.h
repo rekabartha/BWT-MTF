@@ -7,6 +7,7 @@ using namespace std;
 class BurrowsWheeler
 {
     string input;
+    int index;
 
     class Rotation
     {
@@ -25,6 +26,6 @@ class BurrowsWheeler
 
 public:
     friend bool Compare(const Rotation&, const Rotation&);
-    BurrowsWheeler(const string&);
-    string GetTransformedInput();
+    void Encode(const string&, const string&);
+    void Decode(const string&, const string&);
 };

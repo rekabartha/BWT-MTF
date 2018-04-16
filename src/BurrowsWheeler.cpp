@@ -1,5 +1,8 @@
 #include "BurrowsWheeler.h"
 #include <algorithm>
+#include <set>
+#include <map>
+#include <fstream>
 
 bool Compare(const BurrowsWheeler::Rotation& r1, const BurrowsWheeler::Rotation& r2)
 {
@@ -26,11 +29,6 @@ void BurrowsWheeler::Rotation::SetSuffix(const string_view& suffix)
     this->suffix = suffix;
 }
 
-BurrowsWheeler::BurrowsWheeler(const string& input)
-{
-    this->input = input;
-}
-
 vector<int> BurrowsWheeler::GetSuffixVector()
 {
     auto length = input.length();
@@ -46,8 +44,12 @@ vector<int> BurrowsWheeler::GetSuffixVector()
 
     vector<int> suff_indexes;
 
-    for (auto rotation : suffixes)
-        suff_indexes.push_back(rotation.GetIndex());
+    for (size_t i = 0; i < length; i++)
+    {
+        if ((string)suffixes[i].GetSuffix() == input)
+            index = i;
+        suff_indexes.push_back(suffixes[i].GetIndex());
+    }
 
     return suff_indexes;
 }
@@ -69,7 +71,53 @@ string BurrowsWheeler::GetLastColumn(const vector<int>& suff_indexes)
     return result;
 }
 
-string BurrowsWheeler::GetTransformedInput()
+void BurrowsWheeler::Encode(const string& input_filename, const string& output_filename)
 {
-    return GetLastColumn(GetSuffixVector());
+    ifstream f(input_filename);
+    f >> this->input;
+    f.close();
+    this->index = -1;
+    ofstream g(output_filename);
+    g << GetLastColumn(GetSuffixVector());
+    g.close();
+}
+
+void BurrowsWheeler::Decode(const string& input_filename, const string& output_filename)
+{
+    string encoded_input;
+    ifstream f(input_filename);
+    f >> encoded_input;
+    f.close();
+
+    auto length = input.length();
+    string sorted = encoded_input;
+    sort(sorted.begin(), sorted.end());
+
+    set<char> unique(sorted.begin(), sorted.end());
+    map< char, vector<int> > map_of_indexes;
+
+    for (auto element : unique)
+        map_of_indexes.insert(pair< char, vector<int> >(element, NULL));
+
+    for (size_t i = 0; i < length; i++)
+        map_of_indexes[encoded_input[i]].push_back(i);
+
+    vector<int> l_shift;
+
+    for (auto element : map_of_indexes)
+        for (auto value : element.second)
+            l_shift.push_back(value);
+
+    string result;
+    int x = index;
+
+    for (size_t i = 0; i < length; i++)
+    {
+        x = l_shift[x];
+        result += encoded_input[x];
+    }
+
+    ofstream g(output_filename);
+    g << result;
+    g.close();
 }
