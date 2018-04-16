@@ -1,8 +1,45 @@
 #include <algorithm>
+#include <fstream>
 #include "MoveToFront.h"
 
 MoveToFront::MoveToFront(const string & alphabet) : initial_alphabet(alphabet)
 {
+}
+
+void MoveToFront::ReadDecodedDataFromFile(string filename)
+{
+    ifstream fin(filename);
+    fin >> decoded_data;
+    fin.close();
+}
+
+void MoveToFront::WriteEncodedDataToFile(string filename)
+{
+    ofstream fout(filename, ios::out | ios::binary);
+    fout.write(reinterpret_cast<const char*>(&encoded_data[0]), encoded_data.size() * sizeof(unsigned char));
+    fout.close();
+}
+
+void MoveToFront::ReadEncodedDataFromFile(string filename)
+{
+    ifstream fin(filename, ios::out | ios::binary);
+    fin.seekg(0, std::ios::beg);
+    int start = fin.tellg();
+    fin.seekg(0, std::ios::end);
+    int stop = fin.tellg();
+    fin.seekg(0, std::ios::beg);
+    int size = stop - start;
+    const size_t count = size;
+    encoded_data.resize(count);
+    fin.read(reinterpret_cast<char*>(&encoded_data[0]), count * sizeof(unsigned char));
+    fin.close();
+}
+
+void MoveToFront::WriteDecodedDataToFile(string filename)
+{
+    ofstream fout(filename);
+    fout << decoded_data;
+    fout.close();
 }
 
 unsigned int MoveToFront::IndexOfChar(char c)
@@ -25,33 +62,36 @@ void MoveToFront::MoveCharToFront(unsigned int index)
     rotate(first, middle, last);
 }
 
-vector<unsigned int> MoveToFront::encode(string input)
+void MoveToFront::Encode(const string& input_file, const string& output_file)
 {
+    ReadDecodedDataFromFile(input_file);
     alphabet = initial_alphabet;
-    auto length = input.size();
-    vector<unsigned int> output(length);
+    auto length = decoded_data.size();
+    encoded_data.resize(length);
 
     for (auto i = 0; i < length; i++)
     {
-        auto index = IndexOfChar(input[i]);
-        output[i] = index;
+        auto index = IndexOfChar(decoded_data[i]);
+        encoded_data[i] = index;
         MoveCharToFront(index);
     }
 
-    return output;
+    WriteEncodedDataToFile(output_file);
 }
-string MoveToFront::decode(vector<unsigned int> input)
+
+void MoveToFront::Decode(const string& input_file, const string& output_file)
 {
+    ReadEncodedDataFromFile(input_file);
     alphabet = initial_alphabet;
-    auto length = input.size();
-    string output(length, '0');
+    auto length = encoded_data.size();
+    decoded_data.resize(length);
 
     for (auto i = 0; i < length; i++)
     {
-        auto index = input[i];
-        output[i] = alphabet[index];
+        auto index = encoded_data[i];
+        decoded_data[i] = alphabet[index];
         MoveCharToFront(index);
     }
 
-    return output;
+    WriteDecodedDataToFile(output_file);
 }
