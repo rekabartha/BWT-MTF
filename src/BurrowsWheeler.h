@@ -1,6 +1,6 @@
 #pragma once
-#include <string>
 #include <string_view>
+#include <string>
 #include <vector>
 using namespace std;
 
@@ -11,14 +11,9 @@ class BurrowsWheeler
 
     class Rotation
     {
+    public:
         int index;
         string_view suffix;
-
-    public:
-        int GetIndex() const;
-        void SetIndex(int);
-        string_view GetSuffix() const;
-        void SetSuffix(const string_view&);
     };
 
     vector<int> GetSuffixVector();
