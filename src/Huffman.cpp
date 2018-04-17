@@ -1,31 +1,46 @@
-#include "Huffman.h"
-#include <iostream>
-#include <fstream>
 #include <queue>
-#include <bitset>
+#include <fstream>
+#include <iostream>
+#include "Huffman.h"
+#include "Commons.h"
 
-using namespace std;
-
-void Huffman::ReadDataFromFile(string filename)
+void Huffman::WriteFrequenciesToFile(string filename)
 {
-    ifstream fin(filename, ios::out | ios::binary);
-    fin.seekg(0, std::ios::beg);
-    int start = fin.tellg();
-    fin.seekg(0, std::ios::end);
-    int stop = fin.tellg();
-    fin.seekg(0, std::ios::beg);
-    int size = stop - start;
-    const size_t count = size;
-    decoded_data.resize(count);
-    fin.read(reinterpret_cast<char*>(&decoded_data[0]), count * sizeof(unsigned char));
+    ofstream fout(filename);
+    int size = frequencies.size();
+    fout << size << endl;
+    for (auto x : frequencies)
+    {
+        fout << (int)x.first << " " << x.second << " ";
+    }
+    fout.close();
+}
+
+void Huffman::ReadFrequenciesFromFile(string filename)
+{
+    ifstream fin(filename);
+    int size;
+    int c;
+    int freq;
+    fin >> size;
+    for (auto i = 0; i < size; i++)
+    {
+        fin >> c;
+        fin >> freq;
+        frequencies[c] = freq;
+    }
     fin.close();
 }
 
-void Huffman::WriteDataToFile(string filename)
+void Huffman::ResetValues()
 {
-    ofstream fout(filename, ios::out | ios::binary);
-    fout.write(reinterpret_cast<const char*>(&encoded_data[0]), encoded_data.size() * sizeof(unsigned char));
-    fout.close();
+    decoded_data.clear();
+    encoded_data.clear();
+    frequencies.clear();
+    codes.clear();
+    buffer.reset();
+    tree = nullptr;
+    index = 0;
 }
 
 void Huffman::CalculateFrequencies()
@@ -49,7 +64,7 @@ void Huffman::CreateTree()
         Node* right = queue.top();
         queue.pop();
 
-        Node* parent = new Node('#', left->frequency + right->frequency);
+        Node* parent = new Node(254, left->frequency + right->frequency);
         parent->left = left;
         parent->right = right;
 
@@ -58,22 +73,13 @@ void Huffman::CreateTree()
 
     tree = queue.top();
     queue.pop();
-
-    /*
-    std::priority_queue<Node*, vector<Node*>, Node::Compare> temp = queue;
-    while (!temp.empty()) {
-        Node* a = temp.top();
-        std::cout << (int)a->symbol << ":: " << a->frequency << std::endl;
-        temp.pop();
-    }
-    */
 }
 
 void Huffman::TraverseTree(Node* parent, const string& code_so_far)
 {
     if (parent == nullptr) return;
 
-    if (parent->symbol != '#')
+    if (parent->symbol != 254) 
     {
         for (auto const& x : code_so_far) codes[parent->symbol].push_back(x - '0');
     }
@@ -82,12 +88,9 @@ void Huffman::TraverseTree(Node* parent, const string& code_so_far)
     TraverseTree(parent->right, code_so_far + "1");
 }
 
-void Huffman::CreateOutput()
+void Huffman::CreateEncodingMap()
 {
-    index = buffer.size();
-    for (auto const& x : decoded_data) ProcessSymbol(x);
-    ProcessSymbol(255);
-    PadByte();
+    TraverseTree(tree, "");
 }
 
 void Huffman::ProcessSymbol(unsigned char symbol)
@@ -114,42 +117,75 @@ void Huffman::PadByte()
     encoded_data.push_back(static_cast<unsigned char>(buffer.to_ulong()));
 }
 
-void Huffman::CreateEncodingMap()
+void Huffman::CreateEncodedOutput()
 {
-    TraverseTree(tree, "");
+    index = buffer.size();
+    for (auto const& x : decoded_data) ProcessSymbol(x);
+    ProcessSymbol(255);
+    PadByte();
+}
+
+void Huffman::CreateDecodedOutput()
+{
+    Node* p = tree;
+    for (auto const& x : encoded_data)
+    {
+        bitset<8> bits(x);
+        for (auto i = 7; i >= 0; i--)
+        {
+            if (p->symbol != 254)
+            {
+                if (p->symbol == 255) return;
+                decoded_data.push_back(p->symbol);
+                p = tree;
+            }
+            if (bits[i]) p = p->right;
+            else p = p->left;
+        }
+    }
 }
 
 void Huffman::Encode(const string& input_file, const string& output_file)
 {
-    ReadDataFromFile(input_file);
+    ResetValues();
+    ReadDataFromFile(input_file, decoded_data);
     CalculateFrequencies();
     CreateTree();
     CreateEncodingMap();
-    CreateOutput();
-    WriteDataToFile(output_file);
+    CreateEncodedOutput();
+    WriteFrequenciesToFile(output_file + "ext");
+    WriteDataToFile(output_file, encoded_data);
 
-    cout << "Data from file:\n";
-    for (auto const& x : decoded_data) cout << (int)x << " ";
-    cout << endl << endl;
+    /*ofstream f("first.txt");
+    f << "FREQ: \n";
+    for (auto x : frequencies) f << (int)x.first << " " << x.second << endl;
 
-    cout << "Frequencies:\n";
-    for (auto const& x : frequencies) cout << (int)x.first << ": " << x.second  << endl;
-    cout << endl;
-
-    cout << "Codes:\n";
-    for (auto const& x : codes)
-    {
-        cout << (int)x.first << ": ";
-        for (auto const& y : x.second) cout << y;
-        cout << endl;
-    }
-    cout << endl;
-
-    cout << "Output:\n";
-    for (auto const& x : encoded_data) cout << (int)x << " ";
-    cout << endl << endl;
+    f << "CODES: \n";
+    for (auto x : codes) {
+        f << (int)x.first << ": ";
+        for (auto y : x.second) f << y;
+        f << endl;
+    }*/
 }
 
 void Huffman::Decode(const string& input_file, const string& output_file)
 {
+    ResetValues();
+    ReadDataFromFile(input_file, encoded_data);
+    ReadFrequenciesFromFile(input_file + "ext");
+    CreateTree();
+    CreateEncodingMap();
+    CreateDecodedOutput();
+    WriteDataToFile(output_file, decoded_data);
+
+    /*ofstream f("second.txt");
+    f << "FREQ: \n";
+    for (auto x : frequencies) f << (int)x.first << " " << x.second << endl;
+
+    f << "CODES: \n";
+    for (auto x : codes) {
+        f << (int)x.first << ": ";
+        for (auto y : x.second) f << y;
+        f << endl;
+    }*/
 }

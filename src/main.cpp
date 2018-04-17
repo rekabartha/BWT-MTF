@@ -9,13 +9,14 @@ int main() {
     MoveToFront mtf;
     Huffman h;
 
-    ofstream f("input.txt");
-    f << "bananaaa";
-    f.close();
-
+    cout << "MTF encoding...\n";
     mtf.Encode("input.txt", "mtfencoded");
+    cout << "Huffman encoding...\n";
     h.Encode("mtfencoded", "hencoded");
-    mtf.Decode("mtfencoded", "mtfdecoded.txt");
+    cout << "Huffman decoding...\n";
+    h.Decode("hencoded", "hdecoded");
+    cout << "MTF decoding...\n";
+    mtf.Decode("hdecoded", "output.txt");
 
     return 0;
 }

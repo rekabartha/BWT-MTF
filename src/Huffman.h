@@ -36,15 +36,17 @@ private:
     bitset<8> buffer;
     int index;
 
-    void ReadDataFromFile(string filename);
-    void WriteDataToFile(string filename);
+    void WriteFrequenciesToFile(string filename);
+    void ReadFrequenciesFromFile(string filename);
+    void ResetValues();
     void CalculateFrequencies();
     void CreateTree();
-    void CreateEncodingMap();
     void TraverseTree(Node* parent, const string& code_so_far);
-    void CreateOutput();
+    void CreateEncodingMap();
     void ProcessSymbol(unsigned char symbol);
     void PadByte();
+    void CreateEncodedOutput();
+    void CreateDecodedOutput();
 
 public:
     void Encode(const string& input_file, const string& output_file);

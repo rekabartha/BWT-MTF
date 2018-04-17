@@ -1,46 +1,6 @@
 #include <algorithm>
-#include <fstream>
 #include "MoveToFront.h"
-
-MoveToFront::MoveToFront(const string & alphabet) : initial_alphabet(alphabet)
-{
-}
-
-void MoveToFront::ReadDecodedDataFromFile(string filename)
-{
-    ifstream fin(filename);
-    fin >> decoded_data;
-    fin.close();
-}
-
-void MoveToFront::WriteEncodedDataToFile(string filename)
-{
-    ofstream fout(filename, ios::out | ios::binary);
-    fout.write(reinterpret_cast<const char*>(&encoded_data[0]), encoded_data.size() * sizeof(unsigned char));
-    fout.close();
-}
-
-void MoveToFront::ReadEncodedDataFromFile(string filename)
-{
-    ifstream fin(filename, ios::out | ios::binary);
-    fin.seekg(0, std::ios::beg);
-    int start = fin.tellg();
-    fin.seekg(0, std::ios::end);
-    int stop = fin.tellg();
-    fin.seekg(0, std::ios::beg);
-    int size = stop - start;
-    const size_t count = size;
-    encoded_data.resize(count);
-    fin.read(reinterpret_cast<char*>(&encoded_data[0]), count * sizeof(unsigned char));
-    fin.close();
-}
-
-void MoveToFront::WriteDecodedDataToFile(string filename)
-{
-    ofstream fout(filename);
-    fout << decoded_data;
-    fout.close();
-}
+#include "Commons.h"
 
 unsigned int MoveToFront::IndexOfChar(char c)
 {
@@ -64,7 +24,7 @@ void MoveToFront::MoveCharToFront(unsigned int index)
 
 void MoveToFront::Encode(const string& input_file, const string& output_file)
 {
-    ReadDecodedDataFromFile(input_file);
+    ReadDataFromFile(input_file, decoded_data);
     alphabet = initial_alphabet;
     auto length = decoded_data.size();
     encoded_data.resize(length);
@@ -76,12 +36,12 @@ void MoveToFront::Encode(const string& input_file, const string& output_file)
         MoveCharToFront(index);
     }
 
-    WriteEncodedDataToFile(output_file);
+    WriteDataToFile(output_file, encoded_data);
 }
 
 void MoveToFront::Decode(const string& input_file, const string& output_file)
 {
-    ReadEncodedDataFromFile(input_file);
+    ReadDataFromFile(input_file, encoded_data);
     alphabet = initial_alphabet;
     auto length = encoded_data.size();
     decoded_data.resize(length);
@@ -93,5 +53,5 @@ void MoveToFront::Decode(const string& input_file, const string& output_file)
         MoveCharToFront(index);
     }
 
-    WriteDecodedDataToFile(output_file);
+    WriteDataToFile(output_file, decoded_data);
 }
