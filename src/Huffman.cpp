@@ -174,7 +174,6 @@ void Huffman::Decode(const string& input_file, const string& output_file)
     ReadDataFromFile(input_file, encoded_data);
     ReadFrequenciesFromFile(input_file + "ext");
     CreateTree();
-    CreateEncodingMap();
     CreateDecodedOutput();
     WriteDataToFile(output_file, decoded_data);
 

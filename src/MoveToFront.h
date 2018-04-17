@@ -15,7 +15,7 @@ private:
     void MoveCharToFront(unsigned int index);
 
 public:
-    MoveToFront(const string& alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789 \r\n\t,.?!;:'&") : initial_alphabet(alphabet) {}
+	MoveToFront(const string& alphabet = "\1abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 \r\n\t,.?!;:'&#()*[]\"-\\$%\'+-/<>=@^_|~") : initial_alphabet(alphabet) {}
     void Encode(const string& input_file, const string& output_file);
     void Decode(const string& input_file, const string& output_file);
 };
