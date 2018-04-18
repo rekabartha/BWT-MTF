@@ -1,15 +1,15 @@
+#include "Huffman.h"
+#include "Commons.h"
 #include <queue>
 #include <fstream>
 #include <iostream>
-#include "Huffman.h"
-#include "Commons.h"
 
 void Huffman::WriteFrequenciesToFile(string filename)
 {
     ofstream fout(filename);
-    int size = frequencies.size();
+    size_t size = frequencies.size();
     fout << size << endl;
-    for (auto x : frequencies)
+    for (auto const& x : frequencies)
     {
         fout << (int)x.first << " " << x.second << " ";
     }
@@ -19,15 +19,13 @@ void Huffman::WriteFrequenciesToFile(string filename)
 void Huffman::ReadFrequenciesFromFile(string filename)
 {
     ifstream fin(filename);
-    int size;
-    int c;
-    int freq;
+    size_t size, c, freq;
     fin >> size;
-    for (auto i = 0; i < size; i++)
+    for (size_t i = 0; i < size; i++)
     {
         fin >> c;
         fin >> freq;
-        frequencies[c] = freq;
+        frequencies[(unsigned char)c] = freq;
     }
     fin.close();
 }
@@ -46,16 +44,16 @@ void Huffman::ResetValues()
 void Huffman::CalculateFrequencies()
 {
     for (auto const& x : decoded_data)
-    {
         frequencies[x]++;
-    }
+
     frequencies[255] = 1;
 }
 
 void Huffman::CreateTree()
 {
     priority_queue<Node*, vector<Node*>, Node::Compare> queue;
-    for (auto const& x : frequencies) queue.push(new Node(x.first, x.second));
+    for (auto const& x : frequencies)
+		queue.push(new Node(x.first, x.second));
 
     while (queue.size() > 1)
     {
@@ -64,7 +62,7 @@ void Huffman::CreateTree()
         Node* right = queue.top();
         queue.pop();
 
-        Node* parent = new Node(254, left->frequency + right->frequency);
+        Node* parent = new Node((char)254, left->frequency + right->frequency);
         parent->left = left;
         parent->right = right;
 
@@ -77,12 +75,12 @@ void Huffman::CreateTree()
 
 void Huffman::TraverseTree(Node* parent, const string& code_so_far)
 {
-    if (parent == nullptr) return;
+    if (parent == nullptr)
+		return;
 
     if (parent->symbol != 254) 
-    {
-        for (auto const& x : code_so_far) codes[parent->symbol].push_back(x - '0');
-    }
+        for (auto const& x : code_so_far)
+			codes[parent->symbol].push_back(x - '0');
 
     TraverseTree(parent->left, code_so_far + "0");
     TraverseTree(parent->right, code_so_far + "1");
@@ -95,7 +93,7 @@ void Huffman::CreateEncodingMap()
 
 void Huffman::ProcessSymbol(unsigned char symbol)
 {
-    for (auto i = 0; i < codes[symbol].size(); i++)
+    for (size_t i = 0; i < codes[symbol].size(); i++)
     {
         index--;
         buffer[index] = codes[symbol][i];
@@ -120,7 +118,8 @@ void Huffman::PadByte()
 void Huffman::CreateEncodedOutput()
 {
     index = buffer.size();
-    for (auto const& x : decoded_data) ProcessSymbol(x);
+    for (auto const& x : decoded_data)
+		ProcessSymbol(x);
     ProcessSymbol(255);
     PadByte();
 }
@@ -135,12 +134,12 @@ void Huffman::CreateDecodedOutput()
         {
             if (p->symbol != 254)
             {
-                if (p->symbol == 255) return;
+                if (p->symbol == 255)
+					return;
                 decoded_data.push_back(p->symbol);
                 p = tree;
             }
-            if (bits[i]) p = p->right;
-            else p = p->left;
+			bits[i] ? p = p->right : p = p->left;
         }
     }
 }
@@ -155,17 +154,6 @@ void Huffman::Encode(const string& input_file, const string& output_file)
     CreateEncodedOutput();
     WriteFrequenciesToFile(output_file + "ext");
     WriteDataToFile(output_file, encoded_data);
-
-    /*ofstream f("first.txt");
-    f << "FREQ: \n";
-    for (auto x : frequencies) f << (int)x.first << " " << x.second << endl;
-
-    f << "CODES: \n";
-    for (auto x : codes) {
-        f << (int)x.first << ": ";
-        for (auto y : x.second) f << y;
-        f << endl;
-    }*/
 }
 
 void Huffman::Decode(const string& input_file, const string& output_file)
@@ -176,15 +164,4 @@ void Huffman::Decode(const string& input_file, const string& output_file)
     CreateTree();
     CreateDecodedOutput();
     WriteDataToFile(output_file, decoded_data);
-
-    /*ofstream f("second.txt");
-    f << "FREQ: \n";
-    for (auto x : frequencies) f << (int)x.first << " " << x.second << endl;
-
-    f << "CODES: \n";
-    for (auto x : codes) {
-        f << (int)x.first << ": ";
-        for (auto y : x.second) f << y;
-        f << endl;
-    }*/
 }

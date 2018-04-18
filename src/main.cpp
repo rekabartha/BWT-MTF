@@ -1,8 +1,8 @@
-#include <iostream>
-#include <fstream>
-#include "MoveToFront.h"
 #include "Huffman.h"
+#include "MoveToFront.h"
 #include "BurrowsWheeler.h"
+#include <iostream>
+#include <chrono>
 
 using namespace std;
 
@@ -11,8 +11,9 @@ int main() {
     MoveToFront mtf;
     Huffman h;
 
+	auto start = chrono::high_resolution_clock::now();
     cout << "BWT encoding...\n";
-    bwt.Encode("input.txt", "bwtencoded");
+    bwt.Encode("large_input.txt", "bwtencoded");
     cout << "MTF encoding...\n";
     mtf.Encode("bwtencoded", "mtfencoded");
     cout << "Huffman encoding...\n";
@@ -23,6 +24,8 @@ int main() {
     mtf.Decode("hdecoded", "mtfdecoded");
     cout << "BWT decoding...\n";
     bwt.Decode("mtfdecoded", "output.txt");
+	auto stop = chrono::high_resolution_clock::now();
+	cout << chrono::duration_cast<chrono::milliseconds>(stop - start).count() / 1000.0 << endl;
 
     return 0;
 }

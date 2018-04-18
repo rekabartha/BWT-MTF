@@ -1,18 +1,18 @@
 #include "BurrowsWheeler.h"
-#include <iostream>
-#include <fstream>
-#include <algorithm>
-#include <omp.h>
 #include <map>
+#include <omp.h>
+#include <fstream>
+#include <iostream>
+#include <algorithm>
 
 bool Compare(const BurrowsWheeler::Rotation& r1, const BurrowsWheeler::Rotation& r2)
 {
     return r1.suffix < r2.suffix;
 }
 
-vector<int> BurrowsWheeler::GetSuffixVector()
+vector<size_t> BurrowsWheeler::GetSuffixVector()
 {
-    int length = input.length();
+    int length = (int)input.length();
     vector<Rotation> suffixes(length);
 
     string_view text = string_view(input);
@@ -26,7 +26,7 @@ vector<int> BurrowsWheeler::GetSuffixVector()
 
     sort(suffixes.begin(), suffixes.end(), Compare);
 
-    vector<int> suff_indexes(length);
+    vector<size_t> suff_indexes(length);
 
 #pragma omp parallel for
     for (int i = 0; i < length; i++)
@@ -39,16 +39,16 @@ vector<int> BurrowsWheeler::GetSuffixVector()
     return suff_indexes;
 }
 
-string BurrowsWheeler::GetLastColumn(const vector<int>& suff_indexes)
+string BurrowsWheeler::GetLastColumn(const vector<size_t>& suff_indexes)
 {
-    int length = suff_indexes.size();
+    int length = (int)suff_indexes.size();
     string result;
-    vector<char> characters(length);
+    vector<unsigned char> characters(length);
 
 #pragma omp parallel for
     for (int i = 0; i < length; i++)
     {
-        int j = suff_indexes[i] - 1;
+        int j = (int)suff_indexes[i] - 1;
         if (j < 0)
             j += length;
 
@@ -64,8 +64,8 @@ string BurrowsWheeler::GetLastColumn(const vector<int>& suff_indexes)
 void BurrowsWheeler::Encode(const string& input_filename, const string& output_filename)
 {
     ifstream f(input_filename);
-    copy_n(istreambuf_iterator<char>(f.rdbuf()), 500000, back_inserter(this->input));
-    /*this->input.assign(istreambuf_iterator<char>(f), istreambuf_iterator<char>());*/
+    /*copy_n(istreambuf_iterator<char>(f.rdbuf()), 100000, back_inserter(this->input));*/
+    this->input.assign(istreambuf_iterator<char>(f), istreambuf_iterator<char>());
     f.close();
     this->input.push_back(1);
 
@@ -89,15 +89,15 @@ void BurrowsWheeler::Decode(const string& input_filename, const string& output_f
     auto it = unique(sorted.begin(), sorted.end());
     sorted.erase(distance(sorted.begin(), it));
 
-    map< char, vector<int> > map_of_indexes;
+    map< unsigned char, vector<size_t> > map_of_indexes;
 
     for (size_t i = 0; i < sorted.length(); i++)
-        map_of_indexes.insert(pair< char, vector<int> >(sorted[i], NULL));
+        map_of_indexes.insert(pair< unsigned char, vector<size_t> >(sorted[i], NULL));
 
     for (size_t i = 0; i < length; i++)
         map_of_indexes[encoded_input[i]].push_back(i);
 
-    vector<int> l_shift;
+    vector<size_t> l_shift;
     l_shift.reserve(length);
 
     for (auto element : map_of_indexes)
@@ -105,7 +105,7 @@ void BurrowsWheeler::Decode(const string& input_filename, const string& output_f
             l_shift.push_back(value);
 
     string result;
-    int x = index;
+    size_t x = index;
 
     for (size_t i = 0; i < length; i++)
     {

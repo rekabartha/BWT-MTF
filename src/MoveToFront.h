@@ -8,14 +8,13 @@ class MoveToFront {
 private:
     vector<unsigned char> decoded_data;
     vector<unsigned char> encoded_data;
-    string initial_alphabet;
-    string alphabet;
+	vector<unsigned char> alphabet;
 
-    unsigned int IndexOfChar(char c);
-    void MoveCharToFront(unsigned int index);
+	void InitializeAlphabet();
+    size_t IndexOfChar(unsigned char c);
+    void MoveCharToFront(size_t index);
 
 public:
-	MoveToFront(const string& alphabet = "\1abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 \r\n\t,.?!;:'&#()*[]\"-\\$%\'+-/<>=@^_|~") : initial_alphabet(alphabet) {}
     void Encode(const string& input_file, const string& output_file);
     void Decode(const string& input_file, const string& output_file);
 };
