@@ -8,29 +8,29 @@ using namespace std;
 
 class Huffman {
 private:
-	class Node {
-	public:
-		unsigned char symbol;
-		size_t frequency;
-		Node* left;
-		Node* right;
+    class Node {
+    public:
+        unsigned char symbol;
+        size_t frequency;
+        Node* left;
+        Node* right;
 
-		Node(unsigned char symbol, size_t frequency) : symbol(symbol), frequency(frequency), left(nullptr), right(nullptr) {}
+        Node(unsigned char symbol, size_t frequency) : symbol(symbol), frequency(frequency), left(nullptr), right(nullptr) {}
 
-		class Compare
-		{
-		public:
-			bool operator() (Node* first, Node* second)
-			{
-				return (first->frequency > second->frequency);
-			}
-		};
-	};
+        class Compare
+        {
+        public:
+            bool operator() (Node* first, Node* second)
+            {
+                return (first->frequency > second->frequency);
+            }
+        };
+    };
 
     vector<unsigned char> decoded_data;
     vector<unsigned char> encoded_data;
     map<unsigned char, size_t> frequencies;
-	Node* tree;
+    Node* tree;
     map<unsigned char, vector<bool>> codes;
 
     bitset<8> buffer;

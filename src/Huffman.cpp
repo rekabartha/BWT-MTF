@@ -53,7 +53,7 @@ void Huffman::CreateTree()
 {
     priority_queue<Node*, vector<Node*>, Node::Compare> queue;
     for (auto const& x : frequencies)
-		queue.push(new Node(x.first, x.second));
+        queue.push(new Node(x.first, x.second));
 
     while (queue.size() > 1)
     {
@@ -76,11 +76,11 @@ void Huffman::CreateTree()
 void Huffman::TraverseTree(Node* parent, const string& code_so_far)
 {
     if (parent == nullptr)
-		return;
+        return;
 
     if (parent->symbol != 254) 
         for (auto const& x : code_so_far)
-			codes[parent->symbol].push_back(x - '0');
+            codes[parent->symbol].push_back(x - '0');
 
     TraverseTree(parent->left, code_so_far + "0");
     TraverseTree(parent->right, code_so_far + "1");
@@ -119,7 +119,7 @@ void Huffman::CreateEncodedOutput()
 {
     index = buffer.size();
     for (auto const& x : decoded_data)
-		ProcessSymbol(x);
+        ProcessSymbol(x);
     ProcessSymbol(255);
     PadByte();
 }
@@ -135,11 +135,11 @@ void Huffman::CreateDecodedOutput()
             if (p->symbol != 254)
             {
                 if (p->symbol == 255)
-					return;
+                    return;
                 decoded_data.push_back(p->symbol);
                 p = tree;
             }
-			bits[i] ? p = p->right : p = p->left;
+            bits[i] ? p = p->right : p = p->left;
         }
     }
 }
