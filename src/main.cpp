@@ -103,27 +103,27 @@ string BWT_Decode(BurrowsWheeler& bwt, const string& input, const string& origin
 {
     cout << "BWT decoding... ";
     cout << setw(10);
-    bwt.Decode(input, original_input + "_encoded_bwt");
+    bwt.Decode(input, original_input + "_decoded_bwt");
 
-    return original_input + "_encoded_bwt";
+    return original_input + "_decoded_bwt";
 }
 
 string MTF_Decode(MoveToFront& mtf, const string& input, const string& original_input)
 {
     cout << "MTF decoding... ";
     cout << setw(10);
-    mtf.Decode(input, original_input + "_encoded_mtf");
+    mtf.Decode(input, original_input + "_decoded_mtf");
 
-    return original_input + "_encoded_mtf";
+    return original_input + "_decoded_mtf";
 }
 
 string Huffman_Decode(Huffman& h, const string& input, const string& original_input)
 {
     cout << "Huffman decoding... ";
     cout << setw(6);
-    h.Decode(input, original_input + "_encoded_huf");
+    h.Decode(input, original_input + "_decoded_huf");
 
-    return original_input + "_encoded_huf";
+    return original_input + "_decoded_huf";
 }
 
 void Opt1_Decode(MoveToFront& mtf, Huffman& h, const string& input)
@@ -150,6 +150,7 @@ void Opt1_Decode(MoveToFront& mtf, Huffman& h, const string& input)
     remove(input.c_str());
     remove(input_no_ext.c_str());
     remove(output.c_str());
+	remove(new_name.c_str());
 
     rename(old_name.c_str(), new_name.c_str());
 }
@@ -186,6 +187,7 @@ void Opt2_Decode(BurrowsWheeler& bwt, MoveToFront& mtf, Huffman& h, const string
     remove(input.c_str());
     remove(input_no_ext.c_str());
     remove(output.c_str());
+	remove(new_name.c_str());
 
     rename(old_name.c_str(), new_name.c_str());
 }
@@ -209,6 +211,7 @@ void Opt3_Decode(Huffman& h, const string& input)
 
     remove(input.c_str());
     remove(input_no_ext.c_str());
+	remove(new_name.c_str());
 
     rename(old_name.c_str(), new_name.c_str());
 }
