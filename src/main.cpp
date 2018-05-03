@@ -140,6 +140,10 @@ void Opt1_Decode(BurrowsWheeler& bwt, Huffman& h, const string& input)
     BWT_Decode(bwt, output);
     auto bwt_decoded = chrono::high_resolution_clock::now();
     cout << chrono::duration_cast<chrono::milliseconds>(bwt_decoded - huffman_decoded).count() / 1000.0 << " s" << endl;
+
+    cout << "Total time: ";
+    cout << setw(14);
+    cout << chrono::duration_cast<chrono::milliseconds>(bwt_decoded - start).count() / 1000.0 << " s" << endl;
 }
 
 void Opt2_Decode(MoveToFront& mtf, Huffman& h, const string& input)
@@ -153,6 +157,10 @@ void Opt2_Decode(MoveToFront& mtf, Huffman& h, const string& input)
     MTF_Decode(mtf, output);
     auto mtf_decoded = chrono::high_resolution_clock::now();
     cout << chrono::duration_cast<chrono::milliseconds>(mtf_decoded - huffman_decoded).count() / 1000.0 << " s" << endl;
+
+    cout << "Total time: ";
+    cout << setw(14);
+    cout << chrono::duration_cast<chrono::milliseconds>(mtf_decoded - start).count() / 1000.0 << " s" << endl;
 
 }
 
@@ -171,6 +179,10 @@ void Opt3_Decode(BurrowsWheeler& bwt, MoveToFront& mtf, Huffman& h, const string
     BWT_Decode(bwt, output);
     auto bwt_decoded = chrono::high_resolution_clock::now();
     cout << chrono::duration_cast<chrono::milliseconds>(bwt_decoded - mtf_decoded).count() / 1000.0 << " s" << endl;
+
+    cout << "Total time: ";
+    cout << setw(14);
+    cout << chrono::duration_cast<chrono::milliseconds>(bwt_decoded - start).count() / 1000.0 << " s" << endl;
 }
 
 void Opt4_Decode(Huffman& h, const string& input)
@@ -178,6 +190,10 @@ void Opt4_Decode(Huffman& h, const string& input)
     auto start = chrono::high_resolution_clock::now();
     Huffman_Decode(h, input);
     auto huffman_decoded = chrono::high_resolution_clock::now();
+    cout << chrono::duration_cast<chrono::milliseconds>(huffman_decoded - start).count() / 1000.0 << " s" << endl;
+
+    cout << "Total time: ";
+    cout << setw(14);
     cout << chrono::duration_cast<chrono::milliseconds>(huffman_decoded - start).count() / 1000.0 << " s" << endl;
 }
 
@@ -199,7 +215,7 @@ void Menu()
     switch (option_1)
     {
     case 1:
-        cout << "Please specify the file name: ";
+        cout << "\nPlease specify the file name: ";
         cin >> input;
         switch (option_2)
         {
