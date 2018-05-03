@@ -27,19 +27,10 @@ vector<size_t> BurrowsWheeler::GetSuffixVector(const string& output_filename)
     sort(suffixes.begin(), suffixes.end(), Compare);
 
     vector<size_t> suff_indexes(length);
-    int index;
 
 #pragma omp parallel for
     for (int i = 0; i < length; i++)
-    {
-        if (suffixes[i].suffix == input)
-            index = i;
         suff_indexes[i] = suffixes[i].index;
-    }
-
-    ofstream f(output_filename + "_index");
-    f << index;
-    f.close();
 
     return suff_indexes;
 }
@@ -86,11 +77,6 @@ void BurrowsWheeler::Decode(const string& input_filename, const string& output_f
     encoded_input.assign(istreambuf_iterator<char>(f), istreambuf_iterator<char>());
     f.close();
 
-    string index;
-    ifstream h("bwtencoded_index");
-    getline(h, index);
-    h.close();
-
     auto length = encoded_input.length();
     string sorted = encoded_input;
     sort(sorted.begin(), sorted.end());
@@ -114,7 +100,14 @@ void BurrowsWheeler::Decode(const string& input_filename, const string& output_f
             l_shift.push_back(value);
 
     string result;
-    size_t x = stoi(index);
+    size_t x;
+
+    for (size_t i = 0; i < length; i++)
+        if (encoded_input[i] == 1)
+        {
+            x = i;
+            break;
+        }
 
     for (size_t i = 0; i < length; i++)
     {
