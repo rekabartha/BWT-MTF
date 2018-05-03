@@ -4,21 +4,27 @@
 #include <fstream>
 #include <iostream>
 
-void Huffman::WriteFrequenciesToFile(string filename)
+void Huffman::WriteToFile(string filename)
 {
-    ofstream fout(filename);
+    ofstream fout(filename, ios::out | ios::binary);
+
     size_t size = frequencies.size();
     fout << size << endl;
     for (auto const& x : frequencies)
     {
         fout << (int)x.first << " " << x.second << " ";
     }
-    fout.close();
+
+	fout << encoded_data.size();
+	fout.write(reinterpret_cast<const char*>(&encoded_data[0]), encoded_data.size() * sizeof(unsigned char));
+
+	fout.close();
 }
 
-void Huffman::ReadFrequenciesFromFile(string filename)
+void Huffman::ReadFromFile(string filename)
 {
-    ifstream fin(filename);
+    ifstream fin(filename, ios::in | ios::binary);
+
     size_t size, c, freq;
     fin >> size;
     for (size_t i = 0; i < size; i++)
@@ -27,6 +33,12 @@ void Huffman::ReadFrequenciesFromFile(string filename)
         fin >> freq;
         frequencies[(unsigned char)c] = freq;
     }
+
+	size_t count;
+	fin >> count;
+	encoded_data.resize(count);
+	fin.read(reinterpret_cast<char*>(&encoded_data[0]), count * sizeof(unsigned char));
+
     fin.close();
 }
 
@@ -152,15 +164,13 @@ void Huffman::Encode(const string& input_file, const string& output_file)
     CreateTree();
     CreateEncodingMap();
     CreateEncodedOutput();
-    WriteFrequenciesToFile(output_file + "ext");
-    WriteDataToFile(output_file, encoded_data);
+	WriteToFile(output_file);
 }
 
 void Huffman::Decode(const string& input_file, const string& output_file)
 {
     ResetValues();
-    ReadDataFromFile(input_file, encoded_data);
-    ReadFrequenciesFromFile(input_file + "ext");
+	ReadFromFile(input_file);
     CreateTree();
     CreateDecodedOutput();
     WriteDataToFile(output_file, decoded_data);

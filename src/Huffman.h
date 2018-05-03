@@ -36,8 +36,8 @@ private:
     bitset<8> buffer;
     size_t index;
 
-    void WriteFrequenciesToFile(string filename);
-    void ReadFrequenciesFromFile(string filename);
+    void WriteToFile(string filename);
+    void ReadFromFile(string filename);
     void ResetValues();
     void CalculateFrequencies();
     void CreateTree();
