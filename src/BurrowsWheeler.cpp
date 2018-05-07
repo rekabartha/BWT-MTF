@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iostream>
 #include <algorithm>
+#include <execution>
 
 bool Compare(const BurrowsWheeler::Rotation& r1, const BurrowsWheeler::Rotation& r2)
 {
@@ -24,7 +25,7 @@ vector<size_t> BurrowsWheeler::GetSuffixVector(const string& output_filename)
         suffixes[i].suffix = text.substr(i, length - i);
     }
 
-    sort(suffixes.begin(), suffixes.end(), Compare);
+    sort(std::execution::par, suffixes.begin(), suffixes.end(), Compare);
 
     vector<size_t> suff_indexes(length);
 
